@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo List</title>
+    <style>
+        :root {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #343a40;
+            line-height: 1.6;
+            padding-bottom: 60px; /* Ensure sufficient space for the footer */
+            overflow-y: scroll; /* Forces a scrollbar if content overflows */
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1,
+        h2 {
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        #task-input-area {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #inputplace {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1rem;
+            min-width: 150px;
+        }
+
+        #add-priority-select {
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background-color: white;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        #sort-priority-btn {
+            display: block;
+            width: fit-content;
+            margin: 0 auto 1.5rem auto;
+            background-color: #28a745;
+        }
+
+        #sort-priority-btn:hover {
+            background-color: #218838;
+        }
+
+        .task-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 0.8rem;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s ease;
+        }
+
+        .task-container input[type="checkbox"] {
+            margin-right: 15px;
+            transform: scale(1.2);
+            flex-shrink: 0;
+        }
+
+        .task-text {
+            flex-grow: 1;
+            font-size: 1.05rem;
+            margin-right: 10px;
+            word-break: break-word;
+            min-width: 100px;
+        }
+
+        .edit-input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            font-size: 1rem;
+            margin-right: 10px;
+            min-width: 100px;
+        }
+
+        .edit-priority-select {
+            padding: 8px;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            background-color: white;
+            margin-right: 10px;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+
+        .task-container .buttons-container {
+            display: flex;
+            gap: 5px;
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+
+        .fixed-footer {
+            position: fixed;
+            height: 10%;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            color: black;
+            text-align: center;
+            padding: 10px 0;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            font-size: 0.9rem;
+        }
+
+        @media (min-width: 480px) {
+            .task-container .buttons-container {
+                margin-top: 0;
+            }
+        }
+
+        .task-container button {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            background-color: #dc3545;
+            margin-left: 0;
+        }
+
+        .task-container button:hover {
+            background-color: #c82333;
+        }
+
+        .priority-High {
+            border-left: 5px solid #dc3545;
+            background-color: #fcecec;
+        }
+
+        .priority-Medium {
+            border-left: 5px solid #ffc107;
+            background-color: #fff9e6;
+        }
+
+        .priority-Low {
+            border-left: 5px solid #28a745;
+            background-color: #e6fae9;
+        }
+
+        .completed-task .task-text {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .completed-task {
+            background-color: #f0f0f0;
+            border-left: 5px solid #cccccc;
+        }
+
+        .completed-task button {
+            opacity: 0.7;
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding-bottom: 70px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 10px;
+                box-shadow: none;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            #task-input-area {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            #inputplace,
+            #add-priority-select,
+            button {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            #sort-priority-btn {
+                width: 100%;
+                box-sizing: border-box;
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            .task-container {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px;
+            }
+
+            .task-container input[type="checkbox"] {
+                margin-bottom: 10px;
+                margin-right: 0;
+            }
+
+            .task-text,
+            .edit-input,
+            .edit-priority-select {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+                box-sizing: border-box;
+            }
+
+            .task-container .buttons-container {
+                width: 100%;
+                justify-content: space-around;
+                margin-top: 10px;
+            }
+
+            .task-container button {
+                flex-grow: 1;
+                margin-left: 0;
+                margin-right: 0;
+            }
+        }
+
+        @media (max-width: 380px) {
+            h1 {
+                font-size: 1.6rem;
+            }
+
+            button {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+
+            .task-container button {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>ToDo List</h1>
+
+        <div id="task-input-area">
+            <input type="text" placeholder="Add tasks" id="inputplace">
+            <select id="add-priority-select">
+                <option value="High">High Priority</option>
+                <option value="Medium">Medium Priority</option>
+                <option value="Low">Low Priority</option>
+            </select>
+            <button id="add-task-btn">Add</button>
+        </div>
+
+        <button id="sort-priority-btn">Sort by Priority</button>
+
+        <div id="task"></div>
+    </div>
+
+    <footer class="fixed-footer">
+        <p>&copy; 2025 Build by Antgamer. All rights reserved.</p>
+        <p>Version: 1.0, Plan: Free</p>
+    </footer>
+
+    <script src="index.js"></script>
+
+</body>
+
+</html>
