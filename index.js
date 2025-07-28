@@ -166,6 +166,10 @@ function toggletask(idx) {
     }
 }
 
+function upgradePlan(){
+    alert("No Plans available right now.");
+}
+
 function enableEditMode(idx, textDisplay, editInput, editButton, saveButton, deleteButton, editPrioritySelect) {
     textDisplay.style.display = "none";
     editButton.style.display = "none";
