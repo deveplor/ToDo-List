@@ -1,12 +1,15 @@
+// Get references to DOM elements
 let tasks = [];
 const tasksloader = document.getElementById("task");
 const input = document.getElementById("inputplace");
 const storagekey = "tasks";
-
 const addPrioritySelect = document.getElementById("add-priority-select");
 const addTaskBtn = document.getElementById("add-task-btn");
 const sortPriorityBtn = document.getElementById("sort-priority-btn");
+const searchInput = document.getElementById('search-input');
+const MAX_TASKS = 30;
 
+// Add event listeners
 document.addEventListener("DOMContentLoaded", loadtasks);
 
 input.addEventListener("keyup", function(event) {
@@ -17,14 +20,18 @@ input.addEventListener("keyup", function(event) {
 });
 
 addTaskBtn.addEventListener("click", addtask);
-
 sortPriorityBtn.addEventListener("click", sortTasksByPriority);
 
+// Add the new search functionality
+searchInput.addEventListener('keyup', filterTasks);
+
+// Function to load tasks from local storage
 function loadtasks() {
     const olditems = localStorage.getItem(storagekey);
     if (olditems) {
         tasks = JSON.parse(olditems).map(task => {
             if (typeof task === 'string') {
+                // Handle old format where tasks were just strings
                 return { text: task, completed: false, priority: "Medium" };
             }
             return {
@@ -37,52 +44,46 @@ function loadtasks() {
     rendertasks();
 }
 
+// Function to save tasks to local storage
 function savetasks() {
     const string = JSON.stringify(tasks);
     localStorage.setItem(storagekey, string);
 }
 
+// Function to render tasks to the DOM
 function rendertasks() {
     tasksloader.innerHTML = "";
     for (const [idx, task] of Object.entries(tasks)) {
         const container = document.createElement("div");
-        container.style.marginBottom = "10px";
-        container.style.display = "flex";
-        container.style.alignItems = "center";
-        container.dataset.index = idx;
-
-        container.classList.add(`priority-${task.priority}`);
+        // Add classes for styling and responsive behavior
+        container.classList.add("task-container", `priority-${task.priority}`);
         if (task.completed) {
             container.classList.add("completed-task");
         }
+        container.dataset.index = idx;
 
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.checked = task.completed;
-        checkbox.style.marginRight = "10px";
         checkbox.onchange = () => toggletask(idx);
 
         const textDisplay = document.createElement("p");
-        textDisplay.style.display = "block";
-        textDisplay.style.marginRight = "10px";
+        textDisplay.classList.add("task-text");
         textDisplay.textContent = task.text;
-        textDisplay.style.flexGrow = "1";
 
-        if (task.completed) {
-            textDisplay.style.textDecoration = "line-through";
-            textDisplay.style.color = "#888";
-        }
+        const priorityDisplay = document.createElement("span");
+        priorityDisplay.classList.add("priority-display");
+        priorityDisplay.textContent = `${task.priority} Priority`;
 
         const editInput = document.createElement("input");
         editInput.type = "text";
+        editInput.classList.add("edit-input");
         editInput.value = task.text;
         editInput.style.display = "none";
-        editInput.style.marginRight = "10px";
-        editInput.style.flexGrow = "1";
 
         const editPrioritySelect = document.createElement("select");
+        editPrioritySelect.classList.add("edit-priority-select");
         editPrioritySelect.style.display = "none";
-        editPrioritySelect.style.marginRight = "10px";
         ['High', 'Medium', 'Low'].forEach(p => {
             const option = document.createElement('option');
             option.value = p;
@@ -92,19 +93,18 @@ function rendertasks() {
         editPrioritySelect.value = task.priority;
 
         const buttonsContainer = document.createElement("div");
-        buttonsContainer.style.display = "flex";
-        buttonsContainer.style.alignItems = "center";
+        buttonsContainer.classList.add("buttons-container");
 
         const editButton = document.createElement("button");
         editButton.textContent = "Edit";
-        editButton.style.marginRight = "5px";
-        editButton.onclick = () => enableEditMode(idx, textDisplay, editInput, editButton, saveButton, deleteButton, editPrioritySelect);
+        editButton.classList.add("edit-btn");
+        editButton.onclick = () => enableEditMode(idx, textDisplay, editInput, editButton, saveButton, deleteButton, editPrioritySelect, priorityDisplay);
 
         const saveButton = document.createElement("button");
         saveButton.textContent = "Save";
+        saveButton.classList.add("save-btn");
         saveButton.style.display = "none";
-        saveButton.style.marginRight = "5px";
-        saveButton.onclick = () => saveEditedTask(idx, editInput.value, editPrioritySelect.value, textDisplay, editInput, editButton, saveButton, deleteButton, editPrioritySelect);
+        saveButton.onclick = () => saveEditedTask(idx, editInput.value, editPrioritySelect.value, textDisplay, editInput, editButton, saveButton, deleteButton, editPrioritySelect, priorityDisplay);
 
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "X";
@@ -112,6 +112,7 @@ function rendertasks() {
 
         container.appendChild(checkbox);
         container.appendChild(textDisplay);
+        container.appendChild(priorityDisplay);
         container.appendChild(editInput);
         container.appendChild(editPrioritySelect);
 
@@ -124,16 +125,29 @@ function rendertasks() {
     }
 }
 
+// Function to add a new task
 function addtask() {
     const value = input.value.trim();
     const priority = addPrioritySelect.value;
+    const completedTasksCount = tasks.filter(task => task.completed).length;
+
+    if (tasks.length >= MAX_TASKS) {
+        // If all tasks are completed, show a different alert
+        if (completedTasksCount >= MAX_TASKS) {
+            alert("You have completed 30 tasks. Please remove completed tasks or upgrade to a pro plan to add new ones.");
+            return;
+        } else {
+            // Show a general alert for reaching the task limit
+            alert("You have reached the maximum limit of adding tasks. Please remove tasks or buy a pro plan.");
+            return;
+        }
+    }
 
     if (!value) {
         alert("Please enter a task.");
         return;
     }
 
-    // Check for existing tasks with the same name AND same priority
     const existingTaskWithSameNameAndPriority = tasks.some(task =>
         task.text === value && task.priority === priority
     );
@@ -150,6 +164,7 @@ function addtask() {
     savetasks();
 }
 
+// Function to remove a task
 function removetasks(idx) {
     const indexToRemove = parseInt(idx, 10);
     tasks.splice(indexToRemove, 1);
@@ -157,6 +172,7 @@ function removetasks(idx) {
     savetasks();
 }
 
+// Function to toggle a task's completion status
 function toggletask(idx) {
     const indexToToggle = parseInt(idx, 10);
     if (tasks[indexToToggle]) {
@@ -166,12 +182,12 @@ function toggletask(idx) {
     }
 }
 
-function upgradePlan(){
-    alert("No Plans available right now.");
-}
 
-function enableEditMode(idx, textDisplay, editInput, editButton, saveButton, deleteButton, editPrioritySelect) {
+
+// Function to enable edit mode for a task
+function enableEditMode(idx, textDisplay, editInput, editButton, saveButton, deleteButton, editPrioritySelect, priorityDisplay) {
     textDisplay.style.display = "none";
+    priorityDisplay.style.display = "none";
     editButton.style.display = "none";
     deleteButton.style.display = "none";
 
@@ -184,12 +200,13 @@ function enableEditMode(idx, textDisplay, editInput, editButton, saveButton, del
 
     editInput.onkeyup = (event) => {
         if (event.key === "Enter") {
-            saveEditedTask(idx, editInput.value, editPrioritySelect.value, textDisplay, editInput, editButton, saveButton, deleteButton, editPrioritySelect);
+            saveEditedTask(idx, editInput.value, editPrioritySelect.value, textDisplay, editInput, editButton, saveButton, deleteButton, editPrioritySelect, priorityDisplay);
         }
     };
 }
 
-function saveEditedTask(idx, newText, newPriority, textDisplay, editInput, editButton, saveButton, deleteButton, editPrioritySelect) {
+// Function to save an edited task
+function saveEditedTask(idx, newText, newPriority, textDisplay, editInput, editButton, saveButton, deleteButton, editPrioritySelect, priorityDisplay) {
     const indexToEdit = parseInt(idx, 10);
     const trimmedText = newText.trim();
 
@@ -198,7 +215,6 @@ function saveEditedTask(idx, newText, newPriority, textDisplay, editInput, editB
         return;
     }
 
-    // Check if the *new* name AND *new* priority conflict with other *existing* tasks
     const newNameAndPriorityExists = tasks.some((task, i) =>
         i !== indexToEdit && task.text === trimmedText && task.priority === newPriority
     );
@@ -216,6 +232,7 @@ function saveEditedTask(idx, newText, newPriority, textDisplay, editInput, editB
     }
 }
 
+// Function to sort tasks by priority
 function sortTasksByPriority() {
     if (tasks.length === 0) {
         alert("No tasks to sort.");
@@ -233,4 +250,23 @@ function sortTasksByPriority() {
 
     rendertasks();
     savetasks();
+}
+
+// Function to filter tasks based on search input
+function filterTasks() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const taskElements = tasksloader.children;
+
+    for (const taskElement of taskElements) {
+        // Find the specific text element within the task container
+        const taskTextElement = taskElement.querySelector('.task-text');
+        if (taskTextElement) {
+            const taskText = taskTextElement.textContent.toLowerCase();
+            if (taskText.includes(searchTerm)) {
+                taskElement.style.display = 'flex';
+            } else {
+                taskElement.style.display = 'none';
+            }
+        }
+    }
 }
