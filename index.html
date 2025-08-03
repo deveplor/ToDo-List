@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,8 +29,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        h1,
-        h2 {
+        h1, h2 {
             color: #007bff;
             text-align: center;
             margin-bottom: 1.5rem;
@@ -137,6 +135,17 @@
             font-size: 0.95rem;
             flex-shrink: 0;
         }
+        
+        .priority-display {
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background-color: white;
+            margin-right: 10px;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+            text-align: center;
+        }
 
         .task-container .buttons-container {
             display: flex;
@@ -172,9 +181,25 @@
             background-color: #dc3545;
             margin-left: 0;
         }
+        
+        .task-container .edit-btn {
+            background-color: #ffc107;
+        }
+        
+        .task-container .save-btn {
+            background-color: #28a745;
+        }
 
         .task-container button:hover {
             background-color: #c82333;
+        }
+        
+        .task-container .edit-btn:hover {
+            background-color: #e0a800;
+        }
+        
+        .task-container .save-btn:hover {
+            background-color: #218838;
         }
 
         .priority-High {
@@ -238,9 +263,7 @@
                 gap: 8px;
             }
 
-            #inputplace,
-            #add-priority-select,
-            button {
+            #inputplace, #add-priority-select, button {
                 width: 100%;
                 box-sizing: border-box;
             }
@@ -263,13 +286,18 @@
                 margin-right: 0;
             }
 
-            .task-text,
-            .edit-input,
-            .edit-priority-select {
+            .task-text, .edit-input, .edit-priority-select {
                 width: 100%;
                 margin-right: 0;
                 margin-bottom: 10px;
                 box-sizing: border-box;
+            }
+            
+            .priority-display {
+                 width: 100%;
+                 margin-right: 0;
+                 margin-bottom: 10px;
+                 box-sizing: border-box;
             }
 
             .task-container .buttons-container {
@@ -300,6 +328,35 @@
                 font-size: 0.8rem;
             }
         }
+        
+        #search-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 10px 10px 10px 40px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        #search-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: #6c757d;
+        }
     </style>
 </head>
 
@@ -316,6 +373,13 @@
             </select>
             <button id="add-task-btn">Add</button>
         </div>
+        
+        <div id="search-container">
+            <input type="text" id="search-input" placeholder="Search for a task...">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+        </div>
 
         <button id="sort-priority-btn">Sort by Priority</button>
 
@@ -324,7 +388,7 @@
 
     <footer class="fixed-footer">
         <p>&copy; 2025 Build by Antgamer. All rights reserved.</p>
-        <p>Version: 1.0, Plan: Free, <a href="" onclick="upgradePlan()">Upgrade plan<a></p>
+        <p>Version: 2.0, Plan: Free, <a href="plans.html">Upgrade plan<a></p>
     </footer>
 
     <script src="index.js"></script>
